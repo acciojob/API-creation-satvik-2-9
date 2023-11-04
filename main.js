@@ -1,8 +1,7 @@
-Implement the getPostsByTags function in app.js:
-
 const express = require('express');
 const app = express();
 
+// Sample posts
 const posts = [
   {
     id: '1',
@@ -15,25 +14,30 @@ const posts = [
     title: 'Second post',
     content: 'This is the second post.',
     tags: ['tag2', 'tag3']
-  },
-  {
-    id: '3',
-    title: 'Third post',
-    content: 'This is the third post.',
-    tags: ['tag3', 'tag4']
   }
 ];
 
-function getPostsByTags(tags) {
-  // Implement this function
+app.get('/posts', (req, res) => {
+  const tags = req.query.tags ? req.query.tags.split(',') : [];
+  //console.log(tags);
+  if (tags.length === 0) {
+    return res.status(400).json({ error: 'No tags provided' });
+  }
+
+  const filteredPosts = posts.filter(post => 
+    post.tags.some(tag => tags.includes(tag))
+  );
+  //console.log(filteredPosts);
+  return res.status(200).json(filteredPosts);
+});
+
+const PORT = process.env.PORT || 3000;
+
+// Only start the server if the file is run directly from the command line
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 }
 
-app.get('/posts', (req, res) => {
-  const tags = req.query.tags;
-  const posts = getPostsByTags(tags);
-  res.json(posts);
-});
-
-app.listen(3000, () => {
-  console.log('Server listening on port 3000');
-});
+module.exports = app; // Export for testing purposes
